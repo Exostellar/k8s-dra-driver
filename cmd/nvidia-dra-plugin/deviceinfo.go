@@ -30,6 +30,7 @@ import (
 type GpuInfo struct {
 	UUID                  string `json:"uuid"`
 	index                 int
+	memoryGBIndex         int
 	minor                 int
 	migEnabled            bool
 	memoryBytes           uint64
@@ -72,7 +73,7 @@ func (p MigProfileInfo) String() string {
 }
 
 func (d *GpuInfo) CanonicalName() string {
-	return fmt.Sprintf("gpu-%d", d.index)
+	return fmt.Sprintf("gpu-%d-%dg", d.index, d.memoryGBIndex)
 }
 
 func (d *MigDeviceInfo) CanonicalName() string {
@@ -133,7 +134,8 @@ func (d *GpuInfo) GetDevice() resourceapi.Device {
 			},
 			Capacity: map[resourceapi.QualifiedName]resourceapi.DeviceCapacity{
 				"memory": {
-					Value: *resource.NewQuantity(int64(d.memoryBytes), resource.BinarySI),
+					//Value: *resource.NewQuantity(int64(d.memoryBytes), resource.BinarySI),
+					Value: *resource.NewQuantity(int64(1), resource.BinarySI),
 				},
 			},
 		},

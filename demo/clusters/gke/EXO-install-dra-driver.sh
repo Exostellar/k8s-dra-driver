@@ -25,9 +25,9 @@ function from_versions_mk() {
 }
 DRIVER_NAME=$(from_versions_mk "DRIVER_NAME")
 
-: ${IMAGE_REGISTRY:=ghcr.io/nvidia}
-: ${IMAGE_NAME:=${DRIVER_NAME}}
-: ${IMAGE_TAG:=6c34f5fb-ubi8}
+IMAGE_REGISTRY=us-central1-docker.pkg.dev/poc-omniops-gpu/sdg
+IMAGE_NAME=nvidia-dra
+IMAGE_TAG=latest
 
 helm upgrade -i --create-namespace --namespace nvidia nvidia-dra-driver ${PROJECT_DIR}/deployments/helm/k8s-dra-driver \
   --set image.repository=${IMAGE_REGISTRY}/${IMAGE_NAME} \
@@ -39,6 +39,8 @@ helm upgrade -i --create-namespace --namespace nvidia nvidia-dra-driver ${PROJEC
   --set nvidiaDriverRoot="/opt/nvidia" \
   --set kubeletPlugin.tolerations[0].key=nvidia.com/gpu \
   --set kubeletPlugin.tolerations[0].operator=Exists \
-  --set kubeletPlugin.tolerations[0].effect=NoSchedule
+  --set kubeletPlugin.tolerations[0].effect=NoSchedule \
+  --set imagePullSecrets[0].name=gcp-registry-secret
+
 
 #--set nvidiaDriverRoot="/home/kubernetes/bin/nvidia"

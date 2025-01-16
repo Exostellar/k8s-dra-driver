@@ -42,6 +42,8 @@ func NewDriver(ctx context.Context, config *Config) (*driver, error) {
 		client: config.clientsets.Core,
 	}
 
+	klog.Infof(">  NewDriver! Plugin starting...")
+
 	state, err := NewDeviceState(ctx, config)
 	if err != nil {
 		return nil, err
@@ -78,6 +80,8 @@ func NewDriver(ctx context.Context, config *Config) (*driver, error) {
 		resources.Devices = append(resources.Devices, device.GetDevice())
 	}
 
+	klog.Infof(">  Publishing: \n%v\n---------  EOF  ---------", resources)
+
 	if err := plugin.PublishResources(ctx, resources); err != nil {
 		return nil, err
 	}
@@ -105,7 +109,7 @@ func (d *driver) NodePrepareResources(ctx context.Context, req *drapbv1.NodePrep
 }
 
 func (d *driver) NodeUnprepareResources(ctx context.Context, req *drapbv1.NodeUnprepareResourcesRequest) (*drapbv1.NodeUnprepareResourcesResponse, error) {
-	klog.Infof("NodeUnprepareResource is called: number of claims: %d", len(req.Claims))
+	klog.Infof(" << NodeUnprepareResource is called: number of claims: %d", len(req.Claims))
 	unpreparedResources := &drapbv1.NodeUnprepareResourcesResponse{Claims: map[string]*drapbv1.NodeUnprepareResourceResponse{}}
 
 	for _, claim := range req.Claims {

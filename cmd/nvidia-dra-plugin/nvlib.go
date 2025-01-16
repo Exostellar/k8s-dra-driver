@@ -141,6 +141,7 @@ func (l deviceLib) enumerateGpusAndMigDevices(config *Config) (AllocatableDevice
 	}
 	defer l.alwaysShutdown()
 
+	klog.Infof(">  enumerateGpusAndMigDevices")
 	devices := make(AllocatableDevices)
 	deviceClasses := config.flags.deviceClasses
 	err := l.VisitDevices(func(i int, d nvdev.Device) error {
@@ -150,10 +151,20 @@ func (l deviceLib) enumerateGpusAndMigDevices(config *Config) (AllocatableDevice
 		}
 
 		if deviceClasses.Has(GpuDeviceType) && !gpuInfo.migEnabled {
-			deviceInfo := &AllocatableDevice{
-				Gpu: gpuInfo,
+			// deviceInfo := &AllocatableDevice{
+			// 	Gpu: gpuInfo,
+			// }
+			// devices[gpuInfo.CanonicalName()] = deviceInfo
+			klog.Infof("  found %s", gpuInfo.CanonicalName())
+			klog.Infof("  gpuInfo %v", gpuInfo)
+			for i := 0; i < 10; i++ {
+				gpuInfoWithMemoryIndex := *gpuInfo
+				gpuInfoWithMemoryIndex.memoryGBIndex = i
+				deviceInfo := &AllocatableDevice{
+					Gpu: &gpuInfoWithMemoryIndex,
+				}
+				devices[gpuInfoWithMemoryIndex.CanonicalName()] = deviceInfo
 			}
-			devices[gpuInfo.CanonicalName()] = deviceInfo
 		}
 
 		if deviceClasses.Has(MigDeviceType) {
@@ -298,6 +309,7 @@ func (l deviceLib) getGpuInfo(index int, device nvdev.Device) (*GpuInfo, error) 
 		UUID:                  uuid,
 		minor:                 minor,
 		index:                 index,
+		memoryGBIndex:         999,
 		migEnabled:            migEnabled,
 		memoryBytes:           memory.Total,
 		productName:           productName,
