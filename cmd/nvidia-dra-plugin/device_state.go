@@ -194,6 +194,7 @@ func (s *DeviceState) prepareDevices(ctx context.Context, claim *resourceapi.Res
 		return nil, fmt.Errorf("claim not yet allocated")
 	}
 
+	// related to https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/V1alpha3DeviceClaim.md
 	// Retrieve the full set of device configs for the driver.
 	configs, err := GetOpaqueDeviceConfigs(
 		configapi.Decoder,
@@ -223,7 +224,9 @@ func (s *DeviceState) prepareDevices(ctx context.Context, claim *resourceapi.Res
 	// Look through the configs and figure out which one will be applied to
 	// each device allocation result based on their order of precedence and type.
 	configResultsMap := make(map[runtime.Object][]*resourceapi.DeviceRequestAllocationResult)
+	klog.Infof(" > claim.Status.Allocation.Devices.Results: %v\n", claim.Status.Allocation.Devices.Results)
 	for _, result := range claim.Status.Allocation.Devices.Results {
+		klog.Infof(" > result: %v", result)
 
 		klog.Infof(" > prepareDevices:  allocatable: %v", s.allocatable)
 		device, exists := s.allocatable[result.Device]
